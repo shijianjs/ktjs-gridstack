@@ -1,59 +1,85 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
+title: Getting started
 ---
 
 # Getting started
 
-## Requirements
+## Dependency
 
-- JDK 21 or newer; the Gradle wrapper is checked in (9.4.1).
-- Node and npm are downloaded and driven by the Kotlin Gradle plugin — there is no `npm install` step
-  to remember, and `kotlin.js.yarn=false` keeps npm as the package manager.
-- Chromium is downloaded by Playwright the first time a browser test runs.
-
-## Build, test, publish
-
-```bash
-./gradlew build                    # compile, Detekt, browser tests
-./gradlew :ktjs-wrapper-template-core:jsBrowserTest
-./gradlew :demo:e2eTest            # Playwright against the bundled demo page
-./gradlew :docs:docusaurusBuild    # the documentation site
-./gradlew pagesSite                # documentation at /, demo at /demo/, Dokka at /api/
+```kotlin
+kotlin {
+    js {
+        binaries.executable()
+        browser()
+    }
+    sourceSets {
+        jsMain.dependencies {
+            implementation("io.github.shijianjs:ktjs-gridstack:14.1.0-kt.1")
+            // The public API exposes `kotlin-browser`'s `web.*` types, so a consumer must be able to
+            // compile against them.
+            implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:2026.11.1")
+        }
+    }
+}
 ```
 
-`build` does not run the demo's end-to-end suite or assemble the Pages site: both need a browser and
-are part of CI as separate steps.
+Kotlin 2.4.21 or newer; the module emits ESM and targets `es2015` or later.
 
-## Develop
+## Register the plugins
 
-```bash
-./gradlew :docs:docusaurusStart    # dev server for this site
-./gradlew :demo:jsBrowserRun       # dev server for the demo page
+There is no plugin registry: the package exports the classes by name. Kotlin/JS compiles a `@JsModule` *class* into a default import, which `gridstack` does not have, so the class is reached through the module object and the static entry points are functions:
+
+```kotlin
+import io.github.shijianjs.ktjs.gridstack.initGrid
+import io.github.shijianjs.ktjs.gridstack.core.columnCount
+import io.github.shijianjs.ktjs.gridstack.core.gridStackOptions
+
+val grid = initGrid(gridStackOptions { column = columnCount(12.0) }, element)!!
 ```
 
-Docusaurus watches the site directory, so Markdown edits reload; Kotlin changes need
-`./gradlew :docs:docusaurusSite` first, because the site imports the compiled module.
+`initGridBySelector` / `initAllGrids` / `addGrid` are the other entry points. `createGridStack` is the raw constructor, for when you want a new instance on an element that already is a grid.
 
-## Where things live
+## First call
 
-| Path | Contents |
-| --- | --- |
-| `package.json` | the only place npm versions are declared (Dependabot maintains it) |
-| `wrapper-revisions.properties` | per-module `-kt.N` revision |
-| `ktjs-wrapper-template-core/src/jsMain/kotlin` | the wrapper declarations |
-| `ktjs-wrapper-template-core/src/jsTest/kotlin` | browser tests for them |
-| `demo/src/jsMain` | the demo page and its Kotlin entry point |
-| `docs/src/jsMain/kotlin` | the site configuration and sidebar |
-| `docs/src/jsMain/resources` | Markdown pages, MDX landing page, CSS, translations |
+```kotlin
+import io.github.shijianjs.ktjs.gridstack.core.columnCount
+import io.github.shijianjs.ktjs.gridstack.core.gridStackOptions
+import io.github.shijianjs.ktjs.gridstack.core.gridStackWidget
+import io.github.shijianjs.ktjs.gridstack.initGrid
 
-## The lock file
+fun buildDashboard(element: web.html.HTMLElement) {
+    val grid = initGrid(
+        gridStackOptions {
+            column = columnCount(12.0)
+            cellHeight = numberOrString("80px")
+            margin = numberOrString(8.0)
+        },
+        element,
+    )!!
 
-npm dependencies are resolved once for the whole workspace and pinned in
-`kotlin-js-store/package-lock.json`. After adding or upgrading an npm dependency — or changing a
-module's version — regenerate it:
+    grid.addWidget(
+        gridStackWidget {
+            x = 0.0
+            y = 0.0
+            w = 3.0
+            h = 2.0
+            id = "revenue"
+            content = "Revenue — 12.4k"
+        },
+    )
 
-```bash
-./gradlew kotlinUpgradePackageLock
+    grid.on("change") { _, _ -> println("layout changed: ${grid.getRow()} rows") }
+}
 ```
 
-CI verifies the committed file, so a forgotten regeneration fails the build rather than drifting.
+The element needs the `grid-stack` class and `gridstack.min.css`; every widget the library creates carries `grid-stack-item` and a `grid-stack-item-content` that doubles as the drag handle.
+
+## Build and test
+
+```bash
+./gradlew build                     # compile, Detekt, browser tests
+./gradlew :ktjs-gridstack:jsBrowserTest     # only the wrapper's browser tests
+./gradlew :docs:docusaurusStart     # documentation dev server
+./gradlew pagesSite                 # docs at /, demo at /demo/, Dokka at /api/
+```

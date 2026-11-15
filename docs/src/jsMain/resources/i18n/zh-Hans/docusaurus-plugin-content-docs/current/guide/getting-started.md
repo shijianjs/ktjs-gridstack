@@ -1,57 +1,84 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
+title: 快速开始
 ---
 
 # 快速开始
 
-## 环境要求
+## 依赖
 
-- JDK 21 或更高；Gradle wrapper 已入库（9.4.1）。
-- Node 与 npm 由 Kotlin Gradle 插件下载并驱动——没有需要手动执行的 `npm install`，`kotlin.js.yarn=false`
-  保证包管理器是 npm。
-- 第一次跑浏览器测试时会下载 Chromium（Playwright）。
-
-## 构建、测试、发布
-
-```bash
-./gradlew build                    # 编译、Detekt、浏览器测试
-./gradlew :ktjs-wrapper-template-core:jsBrowserTest
-./gradlew :demo:e2eTest            # 用 Playwright 打打包后的 demo 页面
-./gradlew :docs:docusaurusBuild    # 文档站
-./gradlew pagesSite                # 根目录是文档，demo 在 /demo/，Dokka 在 /api/
+```kotlin
+kotlin {
+    js {
+        binaries.executable()
+        browser()
+    }
+    sourceSets {
+        jsMain.dependencies {
+            implementation("io.github.shijianjs:ktjs-gridstack:14.1.0-kt.1")
+            // `kotlin-browser` 的 `web.*` 类型出现在公开 API 里，所以消费方要能编译到它们。
+            implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:2026.11.1")
+        }
+    }
+}
 ```
 
-`build` 不含 demo 的端到端套件，也不组装 Pages 站点：两者都要浏览器，在 CI 里是单独的步骤。
+要求 Kotlin 2.4.21 或更新版本；wrapper 输出 ESM，`es2015` 目标起可用。
 
-## 开发
+## 注册插件
 
-```bash
-./gradlew :docs:docusaurusStart    # 文档站的开发服务器
-./gradlew :demo:jsBrowserRun       # demo 页面的开发服务器
+没有插件注册表：包按名字导出类。Kotlin/JS 会把 `@JsModule` **类**编译成默认导入，而 `gridstack` 没有默认导出，因此类通过模块对象取得，静态入口是函数：
+
+```kotlin
+import io.github.shijianjs.ktjs.gridstack.initGrid
+import io.github.shijianjs.ktjs.gridstack.core.columnCount
+import io.github.shijianjs.ktjs.gridstack.core.gridStackOptions
+
+val grid = initGrid(gridStackOptions { column = columnCount(12.0) }, element)!!
 ```
 
-Docusaurus 监听站点目录，改 Markdown 即时刷新；改 Kotlin 要先 `./gradlew :docs:docusaurusSite`，因为
-站点 import 的是编译产物。
+其余入口是 `initGridBySelector` / `initAllGrids` / `addGrid`。`createGridStack` 是原始构造器，用于在已经是网格的元素上强制新建实例。
 
-## 目录结构
+## 第一个调用
 
-| 路径 | 内容 |
-| --- | --- |
-| `package.json` | npm 版本的唯一来源（Dependabot 维护） |
-| `wrapper-revisions.properties` | 每个模块的 `-kt.N` 修订号 |
-| `ktjs-wrapper-template-core/src/jsMain/kotlin` | wrapper 声明 |
-| `ktjs-wrapper-template-core/src/jsTest/kotlin` | 对应的浏览器测试 |
-| `demo/src/jsMain` | demo 页面与它的 Kotlin 入口 |
-| `docs/src/jsMain/kotlin` | 站点配置与侧边栏 |
-| `docs/src/jsMain/resources` | Markdown 页面、MDX 首页、样式、译文 |
+```kotlin
+import io.github.shijianjs.ktjs.gridstack.core.columnCount
+import io.github.shijianjs.ktjs.gridstack.core.gridStackOptions
+import io.github.shijianjs.ktjs.gridstack.core.gridStackWidget
+import io.github.shijianjs.ktjs.gridstack.initGrid
 
-## 锁文件
+fun buildDashboard(element: web.html.HTMLElement) {
+    val grid = initGrid(
+        gridStackOptions {
+            column = columnCount(12.0)
+            cellHeight = numberOrString("80px")
+            margin = numberOrString(8.0)
+        },
+        element,
+    )!!
 
-整个 workspace 的 npm 依赖只解析一次，钉在 `kotlin-js-store/package-lock.json`。新增或升级 npm 依赖、
-或者改了模块版本之后要重新生成：
+    grid.addWidget(
+        gridStackWidget {
+            x = 0.0
+            y = 0.0
+            w = 3.0
+            h = 2.0
+            id = "revenue"
+            content = "营收 — 12.4k"
+        },
+    )
 
-```bash
-./gradlew kotlinUpgradePackageLock
+    grid.on("change") { _, _ -> println("布局变化：${grid.getRow()} 行") }
+}
 ```
 
-CI 会校验提交的锁文件，忘了重新生成会直接构建失败，而不是悄悄漂移。
+元素需要 `grid-stack` 类与 `gridstack.min.css`；库创建的每个控件带 `grid-stack-item` 与 `grid-stack-item-content`，后者同时是拖动把手。
+
+## 构建与测试
+
+```bash
+./gradlew build                     # 编译、Detekt、浏览器测试
+./gradlew :ktjs-gridstack:jsBrowserTest     # 只跑 wrapper 的浏览器测试
+./gradlew :docs:docusaurusStart     # 文档开发服务器
+./gradlew pagesSite                 # 文档在 /，演示在 /demo/，Dokka 在 /api/
+```
