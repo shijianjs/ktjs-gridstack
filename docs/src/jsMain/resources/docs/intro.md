@@ -18,6 +18,21 @@ The wrapper covers the `gridstack` 14 package: the `GridStack` class with all it
 | `ktjs-gridstack` | `io.github.shijianjs:ktjs-gridstack` | `gridstack` 14.1.0 |
 
 One npm package, one Gradle module, one Kotlin package (`io.github.shijianjs.ktjs.gridstack`) with a `core` sub-package for the types and the engine.
+```mermaid
+flowchart TB
+  GS["GridStack.init(options)<br/>column / cellHeight / float"] --> W["widgets<br/>addWidget, removeWidget, save"]
+  GS --> L["layout<br/>compact, column(n), float"]
+  GS --> DND["drag &amp; drop<br/>move, resize"]
+  GS --> EV["change events<br/>GridStackEvents"]
+  W --> CORE["io.github.shijianjs.ktjs.gridstack<br/>(+ core sub-package: types + engine)"]
+  L --> CORE
+  DND --> CORE
+  EV --> CORE
+  CORE --> DEMO["demo: a four-card dashboard"]
+```
+
+The engine draws the grid and does the dragging; the wrapper decides which layout calls exist and how
+a widget's options are typed.
 
 ## License
 

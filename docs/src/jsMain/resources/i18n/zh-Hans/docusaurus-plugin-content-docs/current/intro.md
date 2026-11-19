@@ -17,6 +17,20 @@ title: 简介
 | `ktjs-gridstack` | `io.github.shijianjs:ktjs-gridstack` | `gridstack` 14.1.0 |
 
 一个 npm 包、一个 Gradle 模块、一个 Kotlin 包（`io.github.shijianjs.ktjs.gridstack`），类型与引擎在 `core` 子包。
+```mermaid
+flowchart TB
+  GS["GridStack.init(options)<br/>column / cellHeight / float"] --> W["卡片<br/>addWidget、removeWidget、save"]
+  GS --> L["布局<br/>compact、column(n)、float"]
+  GS --> DND["拖拽<br/>移动、缩放"]
+  GS --> EV["变化事件<br/>GridStackEvents"]
+  W --> CORE["io.github.shijianjs.ktjs.gridstack<br/>（含 core 子包：类型 + 引擎）"]
+  L --> CORE
+  DND --> CORE
+  EV --> CORE
+  CORE --> DEMO["演示页：四卡片仪表盘"]
+```
+
+网格与拖拽都由引擎实现；wrapper 决定有哪些布局调用、卡片配置怎么标类型。
 
 ## 许可证
 

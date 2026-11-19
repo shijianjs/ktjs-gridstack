@@ -12,6 +12,13 @@ content area and resizable from the corner (both are the library's own drag and 
 call `addWidget`, `compact`, `column(6)`, `column(12)` and `save` through the wrapper, a `change`
 listener keeps the card/row/column counters honest while you drag, and the language switch rewrites
 every label on the page.
+```mermaid
+flowchart LR
+  BTN["buttons"] -->|"addWidget / compact / column(6) …"| GS["GridStack instance<br/>(12 columns, 4 cards)"]
+  DRAG["drag a card, resize from the corner"] -->|"the library's own drag &amp; drop"| GS
+  GS -->|"change listener"| CNT["card / row / column counters"]
+  SAVE["save"] -->|"serialised layout"| OUT["status line"]
+```
 
 
 The language button in the page header switches between English and Simplified Chinese: every
