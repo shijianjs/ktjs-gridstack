@@ -1,15 +1,17 @@
 package demo.page.dashboard
 
+import io.github.shijianjs.ktjs.demo.page.DemoPage
+import io.github.shijianjs.ktjs.dom.webcomponent.defineIfMissing
+import web.components.CustomElementReference
+import web.dom.TagName
 import io.github.shijianjs.ktjs.demo.i18n.Binder
 import io.github.shijianjs.ktjs.demo.i18n.Lang
 import io.github.shijianjs.ktjs.demo.i18n.Langs
 import io.github.shijianjs.ktjs.demo.i18n.Translations
 import io.github.shijianjs.ktjs.demo.i18n.texts
-import io.github.shijianjs.ktjs.demo.nav.Page
 import io.github.shijianjs.ktjs.demo.page.Readout
 import io.github.shijianjs.ktjs.demo.page.exampleBox
 import io.github.shijianjs.ktjs.demo.page.grid
-import io.github.shijianjs.ktjs.demo.page.newPage
 import io.github.shijianjs.ktjs.demo.page.sectionBlock
 import io.github.shijianjs.ktjs.dom.element.invoke
 import io.github.shijianjs.ktjs.dom.element.unaryPlus
@@ -109,8 +111,7 @@ private val ACTIONS: List<Action> = listOf(
  * boundary, so the page re-hosts the sheet through
  * [io.github.shijianjs.ktjs.demo.page.DemoPage.addLinkedSheet].
  */
-internal class DashboardPage : Page {
-    private val page = newPage()
+internal class DashboardPage : DemoPage() {
 
     private val texts = Binder(dashboardTexts)
 
@@ -143,10 +144,9 @@ internal class DashboardPage : Page {
         createButton { setAttribute("data-action", action.id) }
     }
 
-    override val node get() = page
 
     init {
-        page.addLinkedSheet("gridstack.min.css")
+        addLinkedSheet("gridstack.min.css")
 
         val section = sectionBlock()
         texts.bind(section.title, { it.gridHeading })
@@ -157,7 +157,7 @@ internal class DashboardPage : Page {
             exampleBox(null, viewport),
         )
 
-        page.body.append(section.root)
+        body.append(section.root)
         status.root.setAttribute("data-status", "")
 
         buttons.forEachIndexed { index, button ->
@@ -246,8 +246,8 @@ internal class DashboardPage : Page {
 
     override fun applyTranslation(lang: Lang) {
         current = dashboardTexts[lang]
-        page.setTitle(current.title)
-        page.setSummary(current.summary)
+        setTitle(current.title)
+        setSummary(current.summary)
         texts.apply(lang)
         buttons.forEachIndexed { index, button ->
             button.textContent = current.labels.getOrElse(index) { "" }
@@ -257,6 +257,14 @@ internal class DashboardPage : Page {
             label.textContent = cardText(current, index)
         }
         grid?.let { refresh(it) }
+    }
+
+    companion object : CustomElementReference<DashboardPage>(DashboardPage::class.js) {
+        val NAME: TagName<DashboardPage> = TagName("gridstack-dashboard-page")
+
+        fun define() {
+            defineIfMissing(NAME, this)
+        }
     }
 }
 
@@ -269,3 +277,9 @@ private fun cardText(texts: DashboardTexts, index: Int): String {
 
 /** The packing mode's name, as the readout shows it. */
 private fun modeName(mode: GridStackMode): String = mode.unsafeCast<String>()
+
+/** Creates a defined `<gridstack-dashboard-page>`. */
+internal fun newDashboardPage(): DashboardPage {
+    DashboardPage.define()
+    return DashboardPage.NAME()
+}
