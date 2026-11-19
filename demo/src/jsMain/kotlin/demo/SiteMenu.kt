@@ -1,0 +1,35 @@
+package demo
+
+import demo.page.dashboard.DashboardPage
+import demo.page.overview.OverviewPage
+import io.github.shijianjs.ktjs.demo.nav.DemoMenu
+import io.github.shijianjs.ktjs.demo.nav.Entry
+import io.github.shijianjs.ktjs.demo.nav.Group
+
+/** The GridStack version this demo is built against; the navbar shows it under the site name. */
+const val SITE_VERSION: String = "14.1.0"
+
+/** The documentation site. */
+const val DOCS_URL: String = "https://shijianjs.github.io/ktjs-gridstack/"
+
+/** Dokka reference assembled by `pagesSite` next to the demo. */
+const val API_URL: String = "https://shijianjs.github.io/ktjs-gridstack/api/"
+
+/** Source repository, linked from the navbar's link menu. */
+const val SOURCE_URL: String = "https://github.com/shijianjs/ktjs-gridstack"
+
+internal val START: Group = Group("start", "lucide:sparkles")
+
+internal val EXAMPLES: Group = Group("examples", "lucide:play")
+
+/**
+ * The site: one entry per page.
+ *
+ * Adding a page means adding one entry here and its titles in [siteTexts].
+ */
+fun siteMenu(): DemoMenu = DemoMenu(
+    listOf(
+        Entry("overview", START, "lucide:sparkles") { OverviewPage() },
+        Entry("dashboard", EXAMPLES, "lucide:layout-dashboard") { DashboardPage() },
+    ),
+)

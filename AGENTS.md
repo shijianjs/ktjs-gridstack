@@ -576,6 +576,29 @@ klibs.io 从 Maven Central 与 GitHub 自动抓取，无需提交元数据文件
 - 本地预览：执行 `./gradlew pagesSite` 后给 `build/pages` 起任意静态服务器。直接开 `file://` 会因相对
   路径与 CORS 导致资源加载异常。
 
+## 演示页：桥到 `ktjs-demo-kit`
+
+`demo` 的外壳（导航、语言、主题、页面骨架）全部来自 `ktjs-demo-kit`，本仓库只留内容：`Main.kt` 里
+`DemoLayout.define()` + `DemoMenu`，每个页面一个 `DemoPage` 子类（`page/overview`、`page/dashboard`），
+文案走 `SiteTexts` / `Translations`。
+
+与 GridStack 打交道有四条已经踩过的约定：
+
+1. **样式表要重挂进 shadow 树**：`gridstack.min.css` 在 `index.html` 里只作用于 document，卡片在本页的
+   shadow root 里。用 `page.addLinkedSheet("gridstack.min.css")` 把它的规则装进 `CSSStyleSheet` 再
+   `addSheet`，否则条目定位与容器规则全都进不来。
+2. **容器必须带 `<grid-stack>` 那个 class**（`ClassName("grid-stack")`）：GridStack 用它找容器，少了它
+   `initGrid` 找不到元素。
+3. **要等布局再建**：`createOnceMounted()` 等 `viewport.isConnected && clientWidth >= 200` 才
+   `initGrid`，否则引擎按 0 宽度折算列宽，所有卡片堆在第一列。
+4. **卡片用 Vaadin 组件，不用 `content = "<…>"` 字符串**：`gridStackWidget` 的 `content` 是库自己的 HTML
+   入口，用它等于手写标记。正确做法是 `addWidget` 之后取条目的内容容器
+   （`item.asElement().firstElementChild`）再 `append(exampleBox(null, label))` —— 库只负责定位，外观是组件的。
+   语言切换因此改的是页面自己的 `<p>` 节点（`cardLabels` 里存着），不重建网格。
+
+端到端测试 `demo/src/jvmTest/kotlin/demo/e2e/DemoPageTest.kt` 覆盖外壳（logo / 标题 / 菜单 / 语言切换）、
+仪表盘的初始四张卡、`addWidget`、列数切换与 console 无错。
+
 ## 文档约定
 
 - 需要跨会话、跨上下文感知的信息（环境约定、构建方式、模块结构、容易踩的坑）记录在本文件。
