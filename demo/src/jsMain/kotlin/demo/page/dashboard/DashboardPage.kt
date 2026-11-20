@@ -31,55 +31,6 @@ import web.events.addHandler
 import web.html.HTMLElement
 import web.html.HtmlTagName
 
-/** The library's own marker class: GridStack reads it to find the container. */
-private val GRID_STACK: ClassName = ClassName("grid-stack")
-
-private val dashboardEnglish: DashboardTexts = DashboardTexts(
-    title = "Dashboard",
-    summary = "The real GridStack engine behind the wrapper: drag a card by its header or resize it " +
-        "from the corner, while the toolbar drives the same grid through `addWidget`, `compact`, " +
-        "`column` and `save`.",
-    gridHeading = "Live grid",
-    hint = "Everything below is the wrapper's API: `initGrid`, `addWidget`, `compact`, `column`, " +
-        "`save`, and the `change` event.",
-    labels = listOf("Add a card", "Compact", "12 columns", "6 columns", "Save layout"),
-    cards = "Cards",
-    rows = "Rows",
-    columns = "Columns",
-    packing = "Packing",
-    cardTitles = listOf("Revenue", "Signups", "Latency", "Errors", "Storage", "Retention"),
-    cardValues = listOf("12.4k", "3,208", "184 ms", "0.4%", "62 GB", "71%"),
-)
-
-private val dashboardChinese: DashboardTexts = DashboardTexts(
-    title = "仪表盘",
-    summary = "封装背后的真实 GridStack 引擎：拖动卡片标题移动、拖右下角缩放，工具栏则通过 " +
-        "`addWidget`、`compact`、`column`、`save` 操作同一个网格。",
-    gridHeading = "实时网格",
-    hint = "下面的一切都来自 wrapper 的 API：`initGrid`、`addWidget`、`compact`、`column`、" +
-        "`save`，以及 `change` 事件。",
-    labels = listOf("新增卡片", "紧凑排列", "12 列", "6 列", "保存布局"),
-    cards = "卡片数",
-    rows = "行数",
-    columns = "列数",
-    packing = "排列模式",
-    cardTitles = listOf("营收", "注册", "延迟", "错误率", "存储", "留存"),
-    cardValues = listOf("12.4k", "3,208", "184 ms", "0.4%", "62 GB", "71%"),
-)
-
-private val dashboardTexts: Translations<DashboardTexts> = texts(
-    Langs.EN to dashboardEnglish,
-    Langs.ZH_HANS to dashboardChinese,
-)
-
-private val ACTIONS: List<Action> = listOf(
-    Action("add") { page, grid -> page.addCard(grid) },
-    Action("compact") { page, grid -> grid.compact(); page.refresh(grid) },
-    Action("wide") { page, grid -> grid.column(12.0); page.refresh(grid) },
-    Action("narrow") { page, grid -> grid.column(6.0); page.refresh(grid) },
-    Action("save") { page, grid -> grid.save(); page.refresh(grid) },
-)
-
 /**
  * The dashboard page: a toolbar, a live grid, and a readout of what the engine currently holds.
  *
@@ -235,15 +186,58 @@ internal class DashboardPage : DemoPage() {
         grid?.let { refresh(it) }
     }
 
-    companion object : CustomElementReferenceAdapter<DashboardPage>(DashboardPage::class.js, "gridstack-dashboard-page")
+    companion object : CustomElementReferenceAdapter<DashboardPage>(DashboardPage::class.js, "gridstack-dashboard-page") {
+        /** The library's own marker class: GridStack reads it to find the container. */
+        private val GRID_STACK: ClassName = ClassName("grid-stack")
+        private val dashboardEnglish: DashboardTexts = DashboardTexts(
+            title = "Dashboard",
+            summary = "The real GridStack engine behind the wrapper: drag a card by its header or resize it " +
+                "from the corner, while the toolbar drives the same grid through `addWidget`, `compact`, " +
+                "`column` and `save`.",
+            gridHeading = "Live grid",
+            hint = "Everything below is the wrapper's API: `initGrid`, `addWidget`, `compact`, `column`, " +
+                "`save`, and the `change` event.",
+            labels = listOf("Add a card", "Compact", "12 columns", "6 columns", "Save layout"),
+            cards = "Cards",
+            rows = "Rows",
+            columns = "Columns",
+            packing = "Packing",
+            cardTitles = listOf("Revenue", "Signups", "Latency", "Errors", "Storage", "Retention"),
+            cardValues = listOf("12.4k", "3,208", "184 ms", "0.4%", "62 GB", "71%"),
+        )
+        private val dashboardChinese: DashboardTexts = DashboardTexts(
+            title = "仪表盘",
+            summary = "封装背后的真实 GridStack 引擎：拖动卡片标题移动、拖右下角缩放，工具栏则通过 " +
+                "`addWidget`、`compact`、`column`、`save` 操作同一个网格。",
+            gridHeading = "实时网格",
+            hint = "下面的一切都来自 wrapper 的 API：`initGrid`、`addWidget`、`compact`、`column`、" +
+                "`save`，以及 `change` 事件。",
+            labels = listOf("新增卡片", "紧凑排列", "12 列", "6 列", "保存布局"),
+            cards = "卡片数",
+            rows = "行数",
+            columns = "列数",
+            packing = "排列模式",
+            cardTitles = listOf("营收", "注册", "延迟", "错误率", "存储", "留存"),
+            cardValues = listOf("12.4k", "3,208", "184 ms", "0.4%", "62 GB", "71%"),
+        )
+        private val dashboardTexts: Translations<DashboardTexts> = texts(
+            Langs.EN to dashboardEnglish,
+            Langs.ZH_HANS to dashboardChinese,
+        )
+        private val ACTIONS: List<Action> = listOf(
+            Action("add") { page, grid -> page.addCard(grid) },
+            Action("compact") { page, grid -> grid.compact(); page.refresh(grid) },
+            Action("wide") { page, grid -> grid.column(12.0); page.refresh(grid) },
+            Action("narrow") { page, grid -> grid.column(6.0); page.refresh(grid) },
+            Action("save") { page, grid -> grid.save(); page.refresh(grid) },
+        )
+        /** `title — value`: the one-line content every sample card carries. */
+        private fun cardText(texts: DashboardTexts, index: Int): String {
+            val title = texts.cardTitles.getOrElse(index % texts.cardTitles.size) { "" }
+            val value = texts.cardValues.getOrElse(index % texts.cardValues.size) { "" }
+            return "$title — $value"
+        }
+        /** The packing mode's name, as the readout shows it. */
+        private fun modeName(mode: GridStackMode): String = mode.unsafeCast<String>()
+    }
 }
-
-/** `title — value`: the one-line content every sample card carries. */
-private fun cardText(texts: DashboardTexts, index: Int): String {
-    val title = texts.cardTitles.getOrElse(index % texts.cardTitles.size) { "" }
-    val value = texts.cardValues.getOrElse(index % texts.cardValues.size) { "" }
-    return "$title — $value"
-}
-
-/** The packing mode's name, as the readout shows it. */
-private fun modeName(mode: GridStackMode): String = mode.unsafeCast<String>()
