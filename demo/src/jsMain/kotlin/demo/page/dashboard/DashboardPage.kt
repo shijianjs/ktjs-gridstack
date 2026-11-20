@@ -34,24 +34,6 @@ import web.html.HtmlTagName
 /** The library's own marker class: GridStack reads it to find the container. */
 private val GRID_STACK: ClassName = ClassName("grid-stack")
 
-/** Every string this page shows, in one language. */
-private class DashboardTexts(
-    val title: String,
-    val summary: String,
-    val gridHeading: String,
-    val hint: String,
-    /** The toolbar labels, in the order of [ACTIONS]. */
-    val labels: List<String>,
-    /** The readout's nouns: `Cards / rows / columns / packing`. */
-    val cards: String,
-    val rows: String,
-    val columns: String,
-    val packing: String,
-    /** The sample cards: `title — value`, picked by position. */
-    val cardTitles: List<String>,
-    val cardValues: List<String>,
-)
-
 private val dashboardEnglish: DashboardTexts = DashboardTexts(
     title = "Dashboard",
     summary = "The real GridStack engine behind the wrapper: drag a card by its header or resize it " +
@@ -89,9 +71,6 @@ private val dashboardTexts: Translations<DashboardTexts> = texts(
     Langs.EN to dashboardEnglish,
     Langs.ZH_HANS to dashboardChinese,
 )
-
-/** One toolbar button: the command it runs on the grid. */
-private class Action(val id: String, val run: (DashboardPage, GridStack) -> Unit)
 
 private val ACTIONS: List<Action> = listOf(
     Action("add") { page, grid -> page.addCard(grid) },
@@ -141,7 +120,6 @@ internal class DashboardPage : DemoPage() {
     private val buttons: List<ButtonElement> = ACTIONS.map { action ->
         createButton { setAttribute("data-action", action.id) }
     }
-
 
     init {
         addLinkedSheet("gridstack.min.css")
