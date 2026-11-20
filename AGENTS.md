@@ -579,7 +579,7 @@ klibs.io 从 Maven Central 与 GitHub 自动抓取，无需提交元数据文件
 ## 演示页：桥到 `ktjs-demo-kit`
 
 `demo` 的外壳（导航、语言、主题、页面骨架）全部来自 `ktjs-demo-kit`，本仓库只留内容：`Main.kt` 里
-`DemoLayout.define()` + `DemoMenu`，每个页面一个 `DemoPage` 子类（`page/overview`、`page/dashboard`），
+`DemoLayout.NAME`（读一次标签名就注册并升级 `index.html` 里那个元素）+ `DemoMenu`，每个页面一个 `DemoPage` 子类（`page/overview`、`page/dashboard`），
 文案走 `SiteTexts` / `Translations`。
 
 与 GridStack 打交道有四条已经踩过的约定：
