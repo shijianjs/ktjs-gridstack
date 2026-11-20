@@ -1,20 +1,18 @@
 package demo.page.dashboard
 
 import io.github.shijianjs.ktjs.demo.page.DemoPage
-import io.github.shijianjs.ktjs.dom.webcomponent.defineIfMissing
-import web.components.CustomElementReference
-import web.dom.TagName
 import io.github.shijianjs.ktjs.demo.i18n.Binder
 import io.github.shijianjs.ktjs.demo.i18n.Lang
 import io.github.shijianjs.ktjs.demo.i18n.Langs
 import io.github.shijianjs.ktjs.demo.i18n.Translations
 import io.github.shijianjs.ktjs.demo.i18n.texts
-import io.github.shijianjs.ktjs.demo.page.newReadout
-import io.github.shijianjs.ktjs.demo.page.exampleBox
-import io.github.shijianjs.ktjs.demo.page.grid
-import io.github.shijianjs.ktjs.demo.page.sectionBlock
+import io.github.shijianjs.ktjs.demo.page.Blocks.exampleBox
+import io.github.shijianjs.ktjs.demo.page.Grid
+import io.github.shijianjs.ktjs.demo.page.SectionBlock
+import io.github.shijianjs.ktjs.demo.page.Readout
 import io.github.shijianjs.ktjs.dom.element.invoke
 import io.github.shijianjs.ktjs.dom.element.unaryPlus
+import io.github.shijianjs.ktjs.dom.webcomponent.CustomElementReferenceAdapter
 import io.github.shijianjs.ktjs.gridstack.GridStack
 import io.github.shijianjs.ktjs.gridstack.core.GridStackMode
 import io.github.shijianjs.ktjs.gridstack.core.columnCount
@@ -137,7 +135,7 @@ internal class DashboardPage : DemoPage() {
     }
 
     /** Cards, rows, columns and packing: one line under the toolbar, marked for the e2e suite. */
-    private val status = newReadout()
+    private val status = Readout.NAME { show() }
 
     /** One button per action, each tagged so the end-to-end suite can address it by name. */
     private val buttons: List<ButtonElement> = ACTIONS.map { action ->
@@ -148,11 +146,11 @@ internal class DashboardPage : DemoPage() {
     init {
         addLinkedSheet("gridstack.min.css")
 
-        val section = sectionBlock()
+        val section = SectionBlock.NAME { show() }
         texts.bind(section.heading, { it.gridHeading })
         texts.bind(section.hint, { it.hint })
         section.body.append(
-            grid(minColumnWidth = 150, *buttons.toTypedArray()),
+            Grid.NAME { show(150); add(*buttons.toTypedArray()) },
             status.root,
             exampleBox(null, viewport),
         )
@@ -259,13 +257,7 @@ internal class DashboardPage : DemoPage() {
         grid?.let { refresh(it) }
     }
 
-    companion object : CustomElementReference<DashboardPage>(DashboardPage::class.js) {
-        val NAME: TagName<DashboardPage> = TagName("gridstack-dashboard-page")
-
-        fun define() {
-            defineIfMissing(NAME, this)
-        }
-    }
+    companion object : CustomElementReferenceAdapter<DashboardPage>(DashboardPage::class.js, "gridstack-dashboard-page")
 }
 
 /** `title — value`: the one-line content every sample card carries. */
@@ -277,9 +269,3 @@ private fun cardText(texts: DashboardTexts, index: Int): String {
 
 /** The packing mode's name, as the readout shows it. */
 private fun modeName(mode: GridStackMode): String = mode.unsafeCast<String>()
-
-/** Creates a defined `<gridstack-dashboard-page>`. */
-internal fun newDashboardPage(): DashboardPage {
-    DashboardPage.define()
-    return DashboardPage.NAME()
-}
