@@ -149,7 +149,7 @@ internal class DashboardPage : DemoPage() {
         addLinkedSheet("gridstack.min.css")
 
         val section = sectionBlock()
-        texts.bind(section.title, { it.gridHeading })
+        texts.bind(section.heading, { it.gridHeading })
         texts.bind(section.hint, { it.hint })
         section.body.append(
             grid(minColumnWidth = 150, *buttons.toTypedArray()),
