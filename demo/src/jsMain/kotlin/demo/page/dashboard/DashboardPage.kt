@@ -12,7 +12,6 @@ import io.github.shijianjs.ktjs.demo.page.SectionBlock
 import io.github.shijianjs.ktjs.demo.page.Readout
 import io.github.shijianjs.ktjs.dom.element.invoke
 import io.github.shijianjs.ktjs.dom.element.unaryPlus
-import io.github.shijianjs.ktjs.dom.webcomponent.CustomElementReferenceAdapter
 import io.github.shijianjs.ktjs.gridstack.GridStack
 import io.github.shijianjs.ktjs.gridstack.core.GridStackMode
 import io.github.shijianjs.ktjs.gridstack.core.columnCount
@@ -186,7 +185,7 @@ internal class DashboardPage : DemoPage() {
         grid?.let { refresh(it) }
     }
 
-    companion object : CustomElementReferenceAdapter<DashboardPage>(DashboardPage::class.js, "gridstack-dashboard-page") {
+    companion object : DashboardPageDefaultReference() {
         /** The library's own marker class: GridStack reads it to find the container. */
         private val GRID_STACK: ClassName = ClassName("grid-stack")
         private val dashboardEnglish: DashboardTexts = DashboardTexts(
