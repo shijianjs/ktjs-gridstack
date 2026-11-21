@@ -40,6 +40,13 @@ val grid = initGrid(gridStackOptions { column = columnCount(12.0) }, element)!!
 
 `initGridBySelector` / `initAllGrids` / `addGrid` are the other entry points. `createGridStack` is the raw constructor, for when you want a new instance on an element that already is a grid.
 
+```mermaid
+flowchart LR
+    HTML["the element carries the grid-stack class + gridstack.min.css"] --> INIT["initGrid(gridStackOptions { column = columnCount(12.0) }, element)"]
+    INIT --> W["addWidget(gridStackWidget { x; y; w; h; content })"]
+    W --> EV["on('change'): fires after a layout change"]
+```
+
 ## First call
 
 ```kotlin

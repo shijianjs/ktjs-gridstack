@@ -14,6 +14,14 @@ title: API overview
 | `…gridstack.core` | `GridStackWidget`, `gridStackWidget`, `GridStackNode`, `GridStackPosition`, `GridStackMoveOpts`, `GridItemHTMLElement`, `SavedLayout`, `AddRemoveOption`, `GridStackEvents`, `GridStackModes`, `ColumnOptionsValues` |
 | `…gridstack.core` | `GridStackEngine`, `createEngine`, `NumberOrString`, `numberOrString`, `ColumnCount`, `columnCount`, `autoColumnCount`, `Position`, `Size`, `Rect`, `DDUIData`, `CellPosition`, `MousePosition` |
 
+```mermaid
+flowchart LR
+    EXP["gridstack exports GridStack by name<br/>a @JsModule class would compile into a default import"] --> OBJ["module object + function entry points<br/>initGrid / initGridBySelector / addGrid / createGridStack"]
+    OBJ --> GRID["a GridStack instance: addWidget / on('change') / getRow()"]
+    GRID --> ENG["GridStackEngine (createEngine)"]
+    GRID --> SEL["the …BySelector twins: element or selector"]
+```
+
 ## Conventions this wrapper follows
 
 - `gridstack` exports its classes by name (`export { GridStack }`), and a Kotlin `@JsModule` **class**

@@ -14,6 +14,14 @@ title: API 概览
 | `…gridstack.core` | `GridStackWidget`、`gridStackWidget`、`GridStackNode`、`GridStackPosition`、`GridStackMoveOpts`、`GridItemHTMLElement`、`SavedLayout`、`AddRemoveOption`、`GridStackEvents`、`GridStackModes`、`ColumnOptionsValues` |
 | `…gridstack.core` | `GridStackEngine`、`createEngine`、`NumberOrString`、`numberOrString`、`ColumnCount`、`columnCount`、`autoColumnCount`、`Position`、`Size`、`Rect`、`DDUIData`、`CellPosition`、`MousePosition` |
 
+```mermaid
+flowchart LR
+    EXP["gridstack 按名字导出 GridStack<br/>@JsModule class 会编译成 default 导入"] --> OBJ["外部对象 + 函数入口<br/>initGrid / initGridBySelector / addGrid / createGridStack"]
+    OBJ --> GRID["GridStack 实例：addWidget / on('change') / getRow()"]
+    GRID --> ENG["GridStackEngine（createEngine）"]
+    GRID --> SEL["…BySelector 孪生方法：元素或选择器"]
+```
+
 ## 本 wrapper 的约定
 
 - `gridstack` 按名字导出类（`export { GridStack }`），而 Kotlin 的 `@JsModule` **类**会编译成*默认*

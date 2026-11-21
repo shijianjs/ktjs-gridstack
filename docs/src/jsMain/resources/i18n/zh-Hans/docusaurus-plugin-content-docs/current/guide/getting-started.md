@@ -39,6 +39,13 @@ val grid = initGrid(gridStackOptions { column = columnCount(12.0) }, element)!!
 
 其余入口是 `initGridBySelector` / `initAllGrids` / `addGrid`。`createGridStack` 是原始构造器，用于在已经是网格的元素上强制新建实例。
 
+```mermaid
+flowchart LR
+    HTML["元素带 grid-stack 类 + gridstack.min.css"] --> INIT["initGrid(gridStackOptions { column = columnCount(12.0) }, element)"]
+    INIT --> W["addWidget(gridStackWidget { x; y; w; h; content })"]
+    W --> EV["on('change')：重排后回调"]
+```
+
 ## 第一个调用
 
 ```kotlin
