@@ -24,7 +24,7 @@ class DemoPageTest {
 
         assertTrue(page.title().contains("ktjs-gridstack"), "title: ${page.title()}")
         assertTrue(page.locator("img.layout__logo").isVisible(), "the shell shows the project logo")
-        assertEquals("Overview", page.locator("ktjs-demo-page h1").textContent())
+        assertEquals("Overview", page.locator("gridstack-overview-page h1").textContent())
         assertTrue(
             page.locator("vaadin-side-nav-item[data-route='dashboard']").isVisible(),
             "the sidebar lists the dashboard route",
