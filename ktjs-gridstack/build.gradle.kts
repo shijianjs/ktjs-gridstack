@@ -57,9 +57,9 @@ kotlin {
 
             // The public surface exposes kotlin-browser types (`HTMLElement`, `TagName`), so this is
             // `api`: a consumer compiles against them through this module.
-            api("org.jetbrains.kotlin-wrappers:kotlin-browser:2026.11.2")
+            api(libs.kotlin.browser)
             // `js.objects.unsafeJso` (the options builders) comes from kotlin-js.
-            api("org.jetbrains.kotlin-wrappers:kotlin-js:2026.11.2")
+            api(libs.kotlin.js)
         }
         jsTest.dependencies {
             implementation(kotlin("test"))
